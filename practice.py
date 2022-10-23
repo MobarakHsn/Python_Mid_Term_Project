@@ -1,5 +1,5 @@
-list=[1,2,3]
-try:
-    list.remove(4)
-except ValueError:
-    print('here')
+def fun(my):
+    x=1;
+x=0
+fun(x)
+print(x)

@@ -76,6 +76,35 @@ def search_course():
         if now=='Y':
             Add.add_course(course_code)
 
+def update_existing_course():
+    course_code=input('Enter course code of the course you want to update: ')
+    if course_code not in Course.Course.available_course_codes:
+        print('No matched course found!')
+    else:
+        my_course=Course.Course(0,'x',0)
+        my_course.course_code=course_code
+        my_course.title=courses[course_code]['course_title']
+        my_course.credit=courses[course_code]['credit']
+        my_course.prerequisites=courses[course_code]['prerequisites']
+        print(f"Old course title: {courses[course_code]['course_title']}")
+        x=input('Do you want to change it?Press Y to change and any other to skip.')
+        if x=='Y':
+            title=input('New course title: ')
+            courses[course_code]['course_title']=title
+        print(f"Old course credit: {courses[course_code]['credit']}")
+        x=input('Do you want to change it?Press Y to change and any other to skip.')
+        if x=='Y':
+            credit=input('New course credit: ')
+            courses[course_code]['credit']=credit
+        x=input('Do you add some prerequisite course?Press Y to add and any other to skip.')
+        if x=='Y':
+            total=Add.take_number_of_prerequisite()
+            for i in range(total):
+                Add.take_prerequisite(my_course)
+            courses[course_code]['prerequisites']=my_course.prerequisites
+        File.save_courses(courses)
+        File.save_class_var()
+
 while True:
     courses=File.read_from_json('File2.json')
     load_data_from_file()
@@ -93,7 +122,7 @@ while True:
     elif option==1:
         Add.add_course()
     elif option==2:
-        break
+        update_existing_course()
     elif option==3:
         x=input('Enter the course code you want to remove: ')
         delete_course(x)

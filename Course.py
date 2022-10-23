@@ -50,5 +50,3 @@ class Course:
             return 2
         self.prerequisites.append(pre_code)
         return 3
-        
-

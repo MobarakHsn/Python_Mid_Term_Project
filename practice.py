@@ -1,6 +1,5 @@
-import copy
-graph={}
-graph[1]=[2]
-g=copy.deepcopy(graph)
-g[1].pop();
-print(graph)
+list=[1,2,3]
+try:
+    list.remove(4)
+except ValueError:
+    print('here')

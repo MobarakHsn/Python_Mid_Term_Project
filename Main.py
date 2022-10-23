@@ -1,83 +1,15 @@
 import Course
-obj=Course.Course(1,'Python',2)
+import Add_course as Add
+import File
 
-def take_number_of_prerequisite():
-    while True:
-        number=input('Enter number of prerequisites: ')
-        try:
-            number=int(number)
-        except ValueError:
-            print('Please enter only integers')
-            continue
-        break
-    return number
+courses={}
 
-def take_course_code():
-    while True:
-        course_code=input('Enter an integer course code: ')
-        try:
-            course_code=int(course_code)
-        except ValueError:
-            print('Please enter only integers')
-            continue
-        if course_code in Course.Course.available_course_codes:
-            print('Course code already in use enter a new one')
-            continue
-        else:
-            break
-    return course_code
-def take_course_title():
-    course_title=input('Enter course title: ')
-    return course_title
+def load_data_from_file():
+    x=File.read_from_json('File1.json')
+    Course.Course.graph=x['graph']
+    Course.Course.in_degree=x['in_degree']
+    Course.Course.available_course_codes=x['available_course_codes']
 
-def take_credit():
-    while True:
-        credit=input('Enter course credit between 1 to 3: ')
-        try:
-            credit=int(credit)
-        except ValueError:
-            print('Please enter only integers')
-            continue
-        if credit>=1 and credit<=3:
-            break;
-        else:
-            print('Credit must be in range 1 to 3')
-    return credit
-
-def take_prerequisite(my_course):
-    while True:
-        code=input('Enter an integer course code: ')
-        try:
-            code=int(code)
-        except ValueError:
-            print('Please enter only integers')
-            continue
-        if code in Course.Course.available_course_codes:
-            value=my_course.add_prerequisite(code)
-            if value==2:
-                print('This course can not be added as prerequisite')
-                continue
-            break
-        else:
-            now=input('There is no course with such id.Do you want to add this course?Press Y to add or any other to skip.')
-            if now=='Y':
-                course_title=take_course_title()
-                credit=take_credit()
-                new_course=Course.Course(code,course_title,credit)
-                my_course.prerequisites.append(code)
-                break
-            else:
-                break
-
-def add_course():
-    course_code=take_course_code()
-    course_title=take_course_title()
-    credit=take_credit()
-    my_course=Course.Course(course_code,course_title,credit)
-    total=take_number_of_prerequisite()
-    for i in range(total):
-        take_prerequisite(my_course)
-    
 def take_option():
     while True:
         option=input('Please, choose an options: ');
@@ -86,20 +18,86 @@ def take_option():
         except ValueError:
             print('Please enter only integers')
             continue
-        if  option>=0 and option<=4:
+        if  option>=0 and option<=5:
             break;
         else:
-            print('Options range available from 0 to 4 only')
+            print('Options range available from 0 to 5 only')
     return option
 
+def display_all():
+    cnt=0
+    for i in courses:
+        cnt+=1
+        print(f"({cnt})")
+        print(f"Course code: {courses[i]['course_code']}")
+        print(f"Course title: {courses[i]['course_title']}")
+        print(f"Course credit: {courses[i]['credit']}")
+        print(f"Prerequisite course codes: {courses[i]['prerequisites']}")
+
+def delete_course(course_code):
+    if course_code not in Course.Course.available_course_codes:
+        print('No matched course found!')
+    else:
+        for i in Course.Course.graph:
+            try:
+                Course.Course.graph[i].remove(course_code)
+            except ValueError:
+                continue
+        del Course.Course.graph[course_code]
+        del Course.Course.in_degree[course_code]
+        del Course.Course.available_course_codes[course_code]
+
+        for i in courses:
+            try:
+                courses[i]['prerequisites'].remove(course_code)
+            except ValueError:
+                continue
+        del courses[course_code]
+        File.save_class_var()
+        File.save_courses(courses)
+
+def search_course():
+    while True:
+        code=input('Enter the code of the course you are searching for: ')
+        try:
+            code=int(code)
+        except ValueError:
+            print('Please enter only integers')
+            continue
+        break
+    course_code=str(code)
+    if course_code in Course.Course.available_course_codes:
+        print(f"Course code: {courses[course_code]['course_code']}")
+        print(f"Course title: {courses[course_code]['course_title']}")
+        print(f"Course credit: {courses[course_code]['credit']}")
+        print(f"Prerequisite course codes: {courses[course_code]['prerequisites']}")
+    else:
+        now=input('This course is not available do you want to add this course?Press Y to add and any other to skip:')
+        if now=='Y':
+            Add.add_course(course_code)
+
 while True:
-    print('Enter 1 for adding a new course')
-    print('Enter 2 for updating an existing course')
-    print('Enter 3 for deleting an existing course')
-    print('Enter 4 for displaying all the course')
-    print('Enter 0 for exit')
+    courses=File.read_from_json('File2.json')
+    load_data_from_file()
+    print('***********************************************')
+    print('*** Enter 1 for adding a new course         ***')
+    print('*** Enter 2 for updating an existing course ***')
+    print('*** Enter 3 for deleting an existing course ***')
+    print('*** Enter 4 for displaying all the course   ***')
+    print('*** Enter 5 for searching a course          ***')
+    print('*** Enter 0 for exit                        ***')
+    print('***********************************************')
     option=take_option()
     if option==0:
         break
     elif option==1:
-        add_course()
+        Add.add_course()
+    elif option==2:
+        break
+    elif option==3:
+        x=input('Enter the course code you want to remove: ')
+        delete_course(x)
+    elif option==4:
+        display_all()
+    elif option==5:
+        search_course()
